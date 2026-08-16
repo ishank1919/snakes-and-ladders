@@ -335,10 +335,25 @@ if (typeof io !== 'undefined') {
     executeRoll(roll, playerId);
   });
 
+  socket.on('match_started', (data) => {
+    state.mode = 'online';
+    const playerIds = data.players;
+    
+    // Assign players based on the socket IDs received from the server
+    const p1Id = playerIds[0];
+    const p1 = { id: p1Id, name: p1Id === myPlayerId ? 'Host (You)' : 'Host', avatar: AVATARS[0], color: LUDO_COLORS[0], isAi: false, position: 1 };
+    
+    // If there's a second player, assign them
+    const p2Id = playerIds.length > 1 ? playerIds[1] : 'remote';
+    const p2 = { id: p2Id, name: p2Id === myPlayerId ? 'Opponent (You)' : 'Opponent', avatar: AVATARS[2], color: LUDO_COLORS[1], isAi: false, position: 1 };
+    
+    state.players = [p1, p2];
+    navigateTo('game');
+  });
+
   socket.on('game_action', (data) => {
-    if (data.action === 'start_match') {
+    if (data.action === 'sync_state_only') {
       deserializeGameState(data.data);
-      navigateTo('game');
     }
   });
 }
@@ -356,8 +371,8 @@ function deserializeGameState(data) {
   state.presetId = data.presetId;
   state.themeId = data.themeId;
   state.isReverseMode = data.isReverseMode;
-  state.players = data.players;
-  // If we receive state, we need to update our players array to ensure avatars render correctly
+  // If players were passed in data, use them, otherwise match_started handled it
+  if (data.players) state.players = data.players;
 }
 
 // --- Screen Router ---
@@ -778,13 +793,10 @@ el.btnJoinRoom.addEventListener('click', () => {
 });
 el.btnStartOnlineGame.addEventListener('click', () => {
   if (isHost && socket) {
-    state.mode = 'online';
-    const p1 = { id: myPlayerId, name: 'Host', avatar: AVATARS[0], color: LUDO_COLORS[0], isAi: false, position: 1 };
-    const p2 = { id: 'remote', name: 'Opponent', avatar: AVATARS[2], color: LUDO_COLORS[1], isAi: false, position: 1 };
-    state.players = [p1, p2]; // For now, basic 2 player match
-    
-    socket.emit('game_action', { roomCode: currentRoom, action: 'start_match', data: serializeGameState() });
-    setupAndStartGame();
+    // Sync the final board settings to the guest before starting
+    socket.emit('game_action', { roomCode: currentRoom, action: 'sync_state_only', data: serializeGameState() });
+    // Tell the server to start the game and send player assignments
+    socket.emit('start_game', currentRoom);
   }
 });
 el.btnLobbyBack.addEventListener('click', () => navigateTo('modeSelect'));
