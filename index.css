@@ -626,3 +626,58 @@ body {
   gap: 0.75rem;
   justify-content: flex-end;
 }
+
+/* ========================================== */
+/* MOBILE RESPONSIVENESS (Max-width 768px)    */
+/* ========================================== */
+@media (max-width: 768px) {
+  .pure-board-viewport {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .ludo-board-frame {
+    width: 95vmin;
+    max-width: 100%;
+    border-width: 3px;
+  }
+
+  .btn-play-now-giant {
+    font-size: 1.6rem;
+    padding: 1rem 2rem;
+  }
+  
+  .mode-btn {
+    font-size: 1.1rem;
+    padding: 0.8rem 1rem;
+  }
+  
+  .warning-text {
+    font-size: 1.2rem;
+  }
+
+  .pure-board-actions {
+    padding: 1rem;
+    gap: 1rem;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* Shrink text/buttons slightly to fit */
+  .turn-text {
+    font-size: 0.9rem;
+  }
+  
+  .arena-top-bar-minimal {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .pos-top-left, .pos-top-right {
+    top: 1rem;
+  }
+  .pos-top-left { left: 1rem; }
+  .pos-top-right { right: 1rem; }
+}
