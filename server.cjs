@@ -79,6 +79,14 @@ io.on('connection', (socket) => {
     });
   });
 
+  // Host requests to start the game
+  socket.on('start_game', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room && room.host === socket.id) {
+      io.to(roomCode).emit('match_started', { players: room.players });
+    }
+  });
+
   // Relay generic game actions (like reverse mode toggle, restarting)
   socket.on('game_action', ({ roomCode, action, data }) => {
     socket.to(roomCode).emit('game_action', { action, data });
